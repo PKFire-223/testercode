@@ -1,0 +1,25 @@
+common_routing_algorithms_test 3 0.246298
+gadgetlib1_simple_test 0 0
+gadgetlib1_r1cs_ppzksnark_verifier_gadget_test 3 0.000542833
+gadgetlib2_adapters_test 3 0.00185857
+gadgetlib2_constraint_test 3 0.00160602
+gadgetlib2_gadget_test 3 0.0028361
+gadgetlib2_integration_test 3 0.0141068
+gadgetlib2_protoboard_test 3 0.00194372
+gadgetlib2_variable_test 3 0.00367135
+relations_qap_test 3 7.19779
+relations_sap_test 3 3.17687
+relations_ssp_test 3 4.6671
+zk_proof_systems_bacs_ppzksnark_test 3 0.000513378
+zk_proof_systems_r1cs_ppzksnark_test 3 0.000406433
+zk_proof_systems_r1cs_se_ppzksnark_test 3 0.000577807
+zk_proof_systems_r1cs_gg_ppzksnark_test 3 0.000436879
+zk_proof_systems_ram_ppzksnark_test 3 0.000365576
+zk_proof_systems_tbcs_ppzksnark_test 3 0.000563739
+zk_proof_systems_uscs_ppzksnark_test 3 0.000455997
+test_knapsack_gadget 3 0.00150861
+test_merkle_tree_gadgets 3 0.00139361
+test_set_commitment_gadget 3 2.65339
+test_sha256_gadget 3 0.0128882
+---
+gadgetlib1_simple_test
