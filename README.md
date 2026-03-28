@@ -1,50 +1,82 @@
-# Welcome to your Expo app 👋
+# 🚀 Fluxboard 
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**AI-Powered Smart Project Management Platform**
 
-## Get started
+Fluxboard is an intelligent project management platform that automates workspace creation by analyzing user prompts using the Google Gemini API. It dynamically generates fully structured Kanban boards (Lists & Cards) with a smooth drag-and-drop experience, helping teams kickstart projects instantly.
 
-1. Install dependencies
+## ✨ Key Features
+- **AI-Generated Workspaces**: Automatically creates Kanban boards based on natural language prompts
+- **Kanban Board System**: Organized Lists & Cards for intuitive task management
+- **Drag-and-Drop Interaction**: Seamless UI for managing tasks efficiently.
+-  **Modern Tech Stack**: High-performance frontend and scalable backend architecture.
+- **Cloud Database Integration**: Uses MongoDB Atlas for flexible and scalable data storage.
 
-   ```bash
-   npm install
-   ```
+## 🗂️ Tech Stack
 
-2. Start the app
+- **Frontend:** React JS (Vite), TypeScript, Tailwind CSS, Zustand
+- **Backend:** Java Spring Boot 3.x
+- **Database:** MongoDB Atlas (NoSQL)
+- **AI Integration:** Google Gemini API
 
-   ```bash
-   npx expo start
-   ```
+## 📂 Project Structure
 
-In the output, you'll find options to open the app in a
+```text
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+fluxboard/
+├── frontend/                  # FRONTEND
+│   ├── public/                # Static assets (favicon, images)
+│   ├── src/
+│   │   ├── assets/            # Shared styles, icons
+│   │   ├── components/        # Reusable UI components (Button, Modal, Card...)
+│   │   ├── pages/             # Reusable UI components (Button, Modal, Card...)
+│   │   ├── services/          # API communication logic (Axios)
+│   │   ├── store/             # Global state management (Zustand)
+│   │   ├── types/             # TypeScript interfaces/types
+│   │   ├── App.tsx            # Root component with routing
+│   │   └── main.tsx           # Entry point
+│   ├── package.json           
+│   └── tailwind.config.js     
+│
+└── backend/                   # BACKEND/SERVER
+    ├── src/main/java/com/fluxboard/
+    │   ├── config/            # System configuration (CORS, WebClient...)
+    │   ├── controller/        # REST API controllers
+    │   ├── service/           # Business logic (including Gemini API calls)
+    │   ├── repository/        # MongoDB data access layer
+    │   ├── entity/            # Database entities (Board, Card, User)
+    │   ├── dto/               # Data Transfer Objects (Request/Response)
+    │   └── FluxboardApplication.java # File chạy chính của Spring Boot
+    ├── src/main/resources/
+    │   └── application.yml    # App configuration (port, DB URI, API keys)
+    └── pom.xml                
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
-
-```bash
-npm run reset-project
 ```
+## ⚙️ Getting Started 
+**🔧 Prerequisites**
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Make sure you have installed:
+- Node.js (v18 or higher)
+- JDK 17+
+- MongoDB Atlas URI
+- Google Gemini API Key
 
-## Learn more
+### Backend
+```
+cd backend
+```
+Configure your environment variables in:
 
-To learn more about developing your project with Expo, look at the following resources:
+application.yml or .env
+- MongoDB URI
+- Gemini API Key
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Then run:
+```
+./mvnw spring-boot:run
+```
+### Frontend
 
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```
+cd frontend
+npm install
+npm run dev
