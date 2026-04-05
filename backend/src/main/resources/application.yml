@@ -14,7 +14,7 @@ spring:
 
 server:
   address: ${SERVER_HOST:localhost}
-  port: ${SERVER_PORT:8080}
+  port: ${SERVER_PORT}
   servlet:
     context-path: /api/v1
 
