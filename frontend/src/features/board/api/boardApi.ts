@@ -1,28 +1,37 @@
 import axiosClient from '../../../lib/axiosClient';
-import { IBoard } from '../types/index';
-
-export interface IApiResponse<T> {
-  success: boolean;
-  code: string;
-  message: string;
-  data: T;          // Là phần lõi chứa dữ liệu (Board, Card...)
-  meta?: any;       // Dùng optional (?) vì BE có hàm set null cho meta
-  timestamp: string; // Java Instant khi parse sang JSON sẽ biến thành chuỗi ISO string
-}
 
 export const boardApi = {
-  // Lấy dữ liệu Bảng (GET)
-  getBoard: async (boardId: string): Promise<IBoard> => {
-    const response: IApiResponse<IBoard> = await axiosClient.get(`/boards/${boardId}`);
-    return  response.data || response; 
+  // Lấy Board kèm chống Cache
+  getBoard: async (boardId: string): Promise<any> => {
+    const response: any = await axiosClient.get(`/boards/${boardId}?t=${Date.now()}`);
+    return response.data || response; 
   },
 
-  // Cập nhật vị trí thẻ (PATCH)
-  moveCard: async (cardId: string, newColumnId: string, newOrder: number) => {
-    const response: IApiResponse<any> = await axiosClient.patch(`/cards/${cardId}/move`, {
-      new_column_id: newColumnId,
-      new_order: newOrder
+  // 🚀 Gọi API Kéo Thả
+  moveTask: async (taskId: string, columnId: string, order: number, boardId: string) => {
+    return await axiosClient.patch(`/tasks/${taskId}/move`, {
+      new_column_id: columnId, 
+      new_order: order,
+      board_id: boardId 
     });
+  },
+
+  // 🚀 Tạo Task mới
+  createTask: async (taskData: any) => {
+    const response: any = await axiosClient.post('/tasks', taskData);
     return response.data || response;
-  }
+  },
+
+  // 🚀 Cập nhật Task (Sửa lỗi thiếu hàm này)
+  updateTask: async (taskId: string, updateData: any) => {
+    // updateData đã được parse chuẩn snake_case từ useBoardStore
+    const response: any = await axiosClient.put(`/tasks/${taskId}`, updateData);
+    return response.data || response;
+  },
+
+  // 🚀 Xóa Task
+  deleteTask: async (taskId: string) => {
+    const response: any = await axiosClient.delete(`/tasks/${taskId}`);
+    return response.data || response;
+  },
 };

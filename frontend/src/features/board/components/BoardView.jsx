@@ -1,27 +1,37 @@
-import React, { useState, useEffect } from 'react'; // 👉 ĐÃ BỔ SUNG: import useEffect
+import React, { useState, useEffect } from 'react'; 
 import Column from './Column';
-import CardItem from './CardItem';
+import TaskItem from './TaskItem'; // 👉 Đổi từ CardItem
 import { useBoardStore } from '../stores/useBoardStore'; 
 import { DndContext, closestCenter, DragOverlay, useSensor, useSensors, PointerSensor } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 import { X, Plus, Target, Save, Sparkles, Filter } from 'lucide-react'; 
 import AiGeneratorPanel from './AiGeneratorPanel';
+import { useRealtimeEvent } from '../../../hooks/useRealtimeEvent'
+import { useParams } from 'react-router-dom';
 
 const BoardView = () => {
 
-  const { board, setBoard, getBoardTotalPoints, addList, fetchBoardData } = useBoardStore();
-  console.log("💎 DỮ LIỆU BOARD TRONG UI:", board);
-  const [activeCard, setActiveCard] = useState(null);
+  // 👉 Đổi updateCardPositionApi thành updateTaskPositionApi
+  const { board, setBoard, getBoardTotalPoints, addList, fetchBoardData, updateTaskPositionApi } = useBoardStore();
+  
+  // 👉 Đổi state activeCard thành activeTask
+  const [activeTask, setActiveTask] = useState(null);
   const [isAddingCol, setIsAddingCol] = useState(false);
   const [newColTitle, setNewColTitle] = useState('');
 
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+  const { id } = useParams();
 
-  // 👉 ĐÃ BỔ SUNG: Gọi API ngay khi trang vừa load xong
+  const currentBoardId = id || '69d22692ef24ae604f65ae89'; // Dự phòng ID cũ nếu ko có URL
+
+  useRealtimeEvent(`/topic/board/${currentBoardId}`, () => {
+    console.log("🔔 [Real-time Module] Board changed, fetching new data...");
+    fetchBoardData(currentBoardId);
+  });
+
   useEffect(() => {
-    // Truyền cái ID bảng trong DB của Khôi vào đây
-    fetchBoardData('69d22692ef24ae604f65ae89'); 
-  }, [fetchBoardData]);
+    fetchBoardData(currentBoardId); 
+  }, [fetchBoardData, currentBoardId]);
 
   if (!board) return (
     <div className="flex-1 flex flex-col items-center justify-center bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 gap-4 min-h-full">
@@ -39,44 +49,63 @@ const BoardView = () => {
   );
 
   const handleDragStart = (e) => {
-    if (e.active.data.current?.type === 'Card') setActiveCard(e.active.data.current.card);
+    // 👉 Đổi type 'Card' thành 'Task'
+    if (e.active.data.current?.type === 'Task') setActiveTask(e.active.data.current.task);
   };
 
   const handleDragEnd = (e) => {
-    setActiveCard(null);
+    setActiveTask(null); // 👉 Đổi từ setActiveCard
     const { active, over } = e;
     if (!over) return;
 
-    const activeListId = active.data.current?.listId;
-    const overListId = over.data.current?.listId || over.id;
-    if (!activeListId || !overListId) return;
+    const activeColId = active.data.current?.columnId || active.data.current?.listId;
+    const overColId = over.data.current?.columnId || over.data.current?.listId || over.id;
+    if (!activeColId || !overColId) return;
 
-    const sourceListIndex = board.lists.findIndex(l => l.id === activeListId);
-    const destListIndex = board.lists.findIndex(l => l.id === overListId);
-    const newLists = [...board.lists];
+    const sourceColIndex = board.columns.findIndex(c => c.id === activeColId || c._id === activeColId);
+    const destColIndex = board.columns.findIndex(c => c.id === overColId || c._id === overColId);
+    
+    if (sourceColIndex === -1 || destColIndex === -1) return;
 
-    if (activeListId === overListId) {
-      const list = newLists[sourceListIndex];
-      const oldIndex = list.cards.findIndex(c => c.id === active.id);
-      const newIndex = list.cards.findIndex(c => c.id === over.id);
-      newLists[sourceListIndex] = { ...list, cards: arrayMove(list.cards, oldIndex, newIndex) };
-    } else {
-      const sourceList = newLists[sourceListIndex];
-      const destList = newLists[destListIndex];
-      const movedCard = sourceList.cards.find(c => c.id === active.id);
-      const newSourceCards = sourceList.cards.filter(c => c.id !== active.id);
-      const newDestCards = [...(destList.cards || [])];
+    const newColumns = [...board.columns];
+    let newOrder = 1; 
+
+    // Kéo thả TRONG CÙNG 1 CỘT
+    if (activeColId === overColId) {
+      const col = newColumns[sourceColIndex];
+      const oldIndex = col.tasks.findIndex(t => t.id === active.id || t._id === active.id);
+      const newIndex = col.tasks.findIndex(t => t.id === over.id || t._id === over.id);
       
-      if (over.data.current?.type === 'Card') {
-        const newIndex = destList.cards.findIndex(c => c.id === over.id);
-        newDestCards.splice(newIndex, 0, movedCard);
+      newColumns[sourceColIndex] = { ...col, tasks: arrayMove(col.tasks, oldIndex, newIndex) };
+      newOrder = newIndex + 1; 
+      
+    // Kéo thả SANG CỘT KHÁC
+    } else {
+      const sourceCol = newColumns[sourceColIndex];
+      const destCol = newColumns[destColIndex];
+      
+      const movedTask = sourceCol.tasks.find(t => t.id === active.id || t._id === active.id);
+      const newSourceTasks = sourceCol.tasks.filter(t => t.id !== active.id && t._id !== active.id);
+      const newDestTasks = [...(destCol.tasks || [])];
+      
+      // 👉 Đổi type 'Card' thành 'Task'
+      if (over.data.current?.type === 'Task') {
+        const newIndex = destCol.tasks.findIndex(t => t.id === over.id || t._id === over.id);
+        newDestTasks.splice(newIndex, 0, movedTask);
+        newOrder = newIndex + 1;
       } else {
-        newDestCards.push(movedCard);
+        newDestTasks.push(movedTask);
+        newOrder = newDestTasks.length;
       }
-      newLists[sourceListIndex] = { ...sourceList, cards: newSourceCards };
-      newLists[destListIndex] = { ...destList, cards: newDestCards };
+      
+      newColumns[sourceColIndex] = { ...sourceCol, tasks: newSourceTasks };
+      newColumns[destColIndex] = { ...destCol, tasks: newDestTasks };
     }
-    setBoard({ ...board, lists: newLists });
+
+    setBoard({ ...board, columns: newColumns });
+    
+    // 👉 Gọi đúng hàm mới
+    updateTaskPositionApi(active.id, overColId, newOrder);
   };
 
   const handleAddListClick = () => {
@@ -107,8 +136,8 @@ const BoardView = () => {
             </div>
             <div className="flex flex-col">
             <h2 className="text-xl font-black !text-black tracking-tight flex items-center gap-2">
-  {board.board_name}
-</h2>
+              {board.board_name}
+            </h2>
               {board.description && <p className="text-xs text-slate-500 mt-0.5 line-clamp-1 font-medium max-w-lg">{board.description}</p>}
             </div>
           </div>
@@ -148,7 +177,8 @@ const BoardView = () => {
         </div>
 
         <div className="flex-1 w-full p-6 pb-8 overflow-x-auto overflow-y-hidden flex flex-nowrap gap-6 items-start custom-scrollbar">
-          {board.lists?.map((list) => <Column key={list.id} list={list} />)}
+          
+          {board.columns?.map((col) => <Column key={col.id || col._id} list={col} />)}
           
           {isAddingCol ? (
             <div className="w-[300px] shrink-0 bg-white/80 backdrop-blur-sm p-3.5 rounded-2xl shadow-xl border border-white flex flex-col gap-3 ring-2 ring-indigo-100/50 transition-all animate-in fade-in zoom-in-95 duration-200">
@@ -193,7 +223,8 @@ const BoardView = () => {
           duration: 250,
           easing: 'cubic-bezier(0.18, 0.67, 0.6, 1.22)',
         }}>
-        {activeCard ? <CardItem card={activeCard} isOverlay listId="overlay" /> : null}
+        {/* 👉 Đổi component thành TaskItem và prop thành task */}
+        {activeTask ? <TaskItem task={activeTask} isOverlay listId="overlay" /> : null}
       </DragOverlay>
     </DndContext>
   );

@@ -1,13 +1,14 @@
 import React, { useState, memo } from 'react';
 import { MoreHorizontal, Plus, X, Trash2, Flag, Target, User, Tag } from 'lucide-react';
-import CardItem from './CardItem';
+// 👉 ĐÃ SỬA: Import TaskItem thay vì CardItem
+import TaskItem from './TaskItem';
 import { useBoardStore } from '../stores/useBoardStore';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 
-// 👉 TỐI ƯU 1: Bọc React.memo để chống re-render vô ích toàn bộ các cột
 const Column = memo(({ list }) => {
-  const { getColumnTotalPoints, addCard, deleteList } = useBoardStore();
+  // 👉 ĐÃ SỬA: Lấy hàm addTask từ Store
+  const { getColumnTotalPoints, addTask, deleteList } = useBoardStore();
   
   const [isAdding, setIsAdding] = useState(false);
   const [newTitle, setNewTitle] = useState('');
@@ -18,33 +19,37 @@ const Column = memo(({ list }) => {
   const [newTags, setNewTags] = useState('');
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const totalPoints = getColumnTotalPoints ? getColumnTotalPoints(list.id) : 0;
-  const cards = list.cards || [];
+  
+  const listId = list.id || list._id;
+  
+  const totalPoints = getColumnTotalPoints ? getColumnTotalPoints(listId) : 0;
+  
+  // Dùng tasks chuẩn như ông đã fix
+  const tasks = list.tasks || [];
 
   const { setNodeRef } = useDroppable({
-    id: list.id,
-    data: { type: 'List', listId: list.id }
+    id: listId,
+    data: { type: 'List', listId: listId }
   });
 
-  const handleAddCardClick = () => {
+  // 👉 ĐÃ SỬA: Đổi tên hàm thành handleAddTaskClick
+  const handleAddTaskClick = async () => {
     if (newTitle.trim()) {
-      addCard(list.id, {
-        title: newTitle.trim(),
-        description: newDesc.trim(),
+      await addTask(listId, {
+        title: newTitle,
+        description: newDesc,
         priority: newPriority,
-        assignee: newAssignee.trim(),
+        assignee: newAssignee,
         story_points: newPoints,
         tags: newTags
       });
 
-      setNewTitle(''); setNewDesc(''); setNewAssignee(''); 
-      setNewPoints(''); setNewTags(''); setNewPriority('Medium');
       setIsAdding(false);
+      setNewTitle('');
     }
   };
 
   return (
-    // 👉 TỐI ƯU 2: Giao diện Glassmorphism (Kính mờ) viền nổi
     <div className="w-[300px] shrink-0 flex flex-col bg-slate-100/80 backdrop-blur-md rounded-2xl max-h-full relative border border-white/60 shadow-sm">
       {isMenuOpen && <div className="fixed inset-0 z-10" onClick={() => setIsMenuOpen(false)}></div>}
       
@@ -54,7 +59,7 @@ const Column = memo(({ list }) => {
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-extrabold text-slate-800 uppercase tracking-wide">{list.list_name}</h3>
             <span className="px-2 py-0.5 text-[11px] font-bold text-slate-600 bg-white shadow-sm rounded-full border border-slate-200/60">
-              {cards.length}
+              {tasks.length}
             </span>
           </div>
           {totalPoints > 0 && (
@@ -71,7 +76,7 @@ const Column = memo(({ list }) => {
           </button>
           {isMenuOpen && (
             <div className="absolute right-0 top-8 w-44 bg-white/90 backdrop-blur-xl rounded-xl shadow-xl border border-slate-100 py-1 overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-100">
-              <button onClick={() => { if(window.confirm(`Xóa danh sách "${list.list_name}"?`)) deleteList(list.id); setIsMenuOpen(false); }} className="w-full text-left px-4 py-2.5 text-xs font-bold text-rose-600 hover:bg-rose-50 flex items-center gap-2 transition-colors">
+              <button onClick={() => { if(window.confirm(`Xóa danh sách "${list.list_name}"?`)) deleteList(listId); setIsMenuOpen(false); }} className="w-full text-left px-4 py-2.5 text-xs font-bold text-rose-600 hover:bg-rose-50 flex items-center gap-2 transition-colors">
                 <Trash2 size={14} /> Xóa danh sách
               </button>
             </div>
@@ -81,12 +86,13 @@ const Column = memo(({ list }) => {
 
       {/* VÙNG THẢ THẺ (DRAG & DROP AREA) */}
       <div ref={setNodeRef} className="flex-1 overflow-y-auto flex flex-col gap-2.5 px-2 pb-2 custom-scrollbar min-h-[50px]">
-        <SortableContext items={cards.map(c => c.id)} strategy={verticalListSortingStrategy}>
-          {cards.map((card) => <CardItem key={card.id} card={card} listId={list.id} />)}
+        {/* 👉 ĐÃ SỬA: Lặp qua 'tasks' thay vì 'cards' và dùng TaskItem */}
+        <SortableContext items={tasks.map(t => t.id || t._id)} strategy={verticalListSortingStrategy}>
+          {tasks.map((task) => <TaskItem key={task.id || task._id} task={task} listId={listId} />)}
         </SortableContext>
       </div>
 
-      {/* TỐI ƯU 3: FORM THÊM THẺ MỞ RỘNG (SANG TRỌNG) */}
+      {/* FORM THÊM THẺ MỞ RỘNG */}
       <div className="p-2 pt-0">
         {isAdding ? (
           <div className="bg-white p-3 rounded-xl shadow-lg border border-slate-200 flex flex-col gap-2.5 animate-in fade-in zoom-in-95 duration-150 relative z-10">
@@ -94,8 +100,9 @@ const Column = memo(({ list }) => {
               autoFocus 
               value={newTitle} 
               onChange={e => setNewTitle(e.target.value)} 
-              onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleAddCardClick()} 
-              placeholder="Tên thẻ mới..." 
+              // 👉 ĐÃ SỬA: Gọi handleAddTaskClick
+              onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleAddTaskClick()} 
+              placeholder="Tên task mới..." 
               className="text-sm font-bold bg-transparent border-none p-1 outline-none w-full text-slate-800 placeholder:text-slate-400 focus:ring-0" 
             />
             
@@ -137,14 +144,15 @@ const Column = memo(({ list }) => {
             </div>
 
             <div className="flex items-center gap-2 mt-1 pt-2 border-t border-slate-100">
-              <button onClick={handleAddCardClick} className="flex-1 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 shadow-sm transition-all active:scale-95">Tạo thẻ</button>
+              {/* 👉 ĐÃ SỬA: Gọi handleAddTaskClick */}
+              <button onClick={handleAddTaskClick} className="flex-1 py-1.5 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 shadow-sm transition-all active:scale-95">Tạo Task</button>
               <button onClick={() => { setIsAdding(false); setNewTitle(''); setNewDesc(''); }} className="px-3 py-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-700 rounded-lg text-xs font-semibold transition-colors">Hủy</button>
             </div>
           </div>
         ) : (
           <button onClick={() => setIsAdding(true)} className="group w-full flex items-center gap-2 px-3 py-2 text-sm font-semibold text-slate-500 hover:bg-slate-200/50 hover:text-indigo-600 rounded-xl transition-all">
             <Plus size={16} className="text-slate-400 group-hover:text-indigo-500 transition-colors" /> 
-            <span>Thêm thẻ mới</span>
+            <span>Thêm Task mới</span>
           </button>
         )}
       </div>

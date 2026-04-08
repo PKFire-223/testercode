@@ -6,6 +6,7 @@ import com.fluxboard.common.dto.ApiResponse;
 import com.fluxboard.common.util.ResponseFactory;
 import com.fluxboard.board.task.dto.request.CreateTaskRequest;
 import com.fluxboard.board.task.dto.request.UpdateTaskRequest;
+import com.fluxboard.board.task.dto.request.TaskMoveRequest; // 👉 ĐÃ THÊM IMPORT NÀY
 import com.fluxboard.board.task.dto.response.TaskResponse;
 import com.fluxboard.board.task.service.TaskService;
 import com.fluxboard.board.task.dto.request.TaskMoveRequest;
@@ -21,6 +22,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping; // 👉 ĐÃ THÊM IMPORT NÀY
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -28,15 +30,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 @RestController
 @RequestMapping("/tasks")
 public class TaskController {
-
     private final TaskService taskService;
 
-    public TaskController(TaskService taskService) {
+    private final SimpMessagingTemplate messagingTemplate;
+
+    public TaskController(TaskService taskService, SimpMessagingTemplate messagingTemplate) {
         this.taskService = taskService;
+        this.messagingTemplate = messagingTemplate;
     }
 
     @RequirePermission("TASK_CREATE")
@@ -108,19 +112,25 @@ public class TaskController {
         return ResponseFactory.ok("Task updated successfully.", taskService.update(taskId, request));
     }
 
+    // 👉 ĐÃ THÊM HÀM KÉO THẢ VÀO ĐÂY
+    @RequirePermission("TASK_UPDATE")
+    @PatchMapping("/{taskId}/move")
+public ResponseEntity<ApiResponse<TaskResponse>> moveTask(
+        @PathVariable String taskId,
+        @Valid @RequestBody TaskMoveRequest request
+) {
+    TaskResponse response = taskService.moveTask(taskId, request);
+    
+    // ✅ Lấy boardId từ request gửi lên để báo cho các máy khác
+    messagingTemplate.convertAndSend("/topic/board/" + request.boardId(), "CHANGED");
+    
+    return ResponseFactory.ok("Task moved successfully.", response);
+}
+
     @RequirePermission("TASK_DELETE")
     @DeleteMapping("/{taskId}")
     public ResponseEntity<ApiResponse<Void>> deleteTask(@PathVariable String taskId) {
         taskService.delete(taskId);
         return ResponseFactory.ok("Task deleted successfully.");
-    }
-    
-    @RequirePermission("TASK_UPDATE")
-    @PatchMapping("/{taskId}/move")
-    public ResponseEntity<ApiResponse<TaskResponse>> moveTask(
-            @PathVariable String taskId,
-            @Valid @RequestBody TaskMoveRequest request
-    ) {
-        return ResponseFactory.ok("Task moved successfully.", taskService.moveTask(taskId, request));
     }
 }
