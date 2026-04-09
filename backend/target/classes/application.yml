@@ -6,6 +6,10 @@ spring:
   data:
     mongodb:
       uri: ${MONGODB_URI:mongodb://localhost:27017/fluxboard_db}
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+    deserialization:
+      fail-on-unknown-properties: true
   mvc:
     throw-exception-if-no-handler-found: true
   web:
@@ -14,7 +18,7 @@ spring:
 
 server:
   address: ${SERVER_HOST:localhost}
-  port: ${SERVER_PORT}
+  port: ${SERVER_PORT:8080}
   servlet:
     context-path: /api/v1
 
@@ -23,3 +27,17 @@ management:
     web:
       exposure:
         include: health,info
+
+auth:
+  jwt:
+    secret: ${JWT_SECRET:replace-this-with-a-32-byte-minimum-secret}
+    expiration-minutes: ${JWT_EXPIRATION_MINUTES:120}
+    issuer: ${JWT_ISSUER:fluxboard-backend}
+
+app:
+  frontend:
+    url: ${FRONTEND_URL:http://localhost:5173}
+
+seeddata: ${SEED_DATA}
+seed-system-admin-email: ${SEED_SYSTEM_ADMIN_EMAIL}
+seed-system-admin-password: ${SEED_SYSTEM_ADMIN_PASSWORD}
