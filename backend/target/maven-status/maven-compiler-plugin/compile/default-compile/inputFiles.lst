@@ -5,6 +5,7 @@ C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\ai\repository\AiContextRepository.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\ai\service\AiService.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\auth\controller\AuthController.java
+C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\auth\dto\request\ChangePasswordRequest.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\auth\dto\request\ForgotPasswordRequest.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\auth\dto\request\LoginRequest.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\auth\dto\request\ResetPasswordRequest.java
@@ -62,6 +63,7 @@ C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\email\service\EmailService.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\FluxboardApplication.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\project\controller\ProjectController.java
+C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\project\dto\request\AddProjectMemberRequest.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\project\dto\request\CreateProjectRequest.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\project\dto\request\UpdateProjectRequest.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\project\dto\response\ProjectBoardOverviewResponse.java
