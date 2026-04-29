@@ -1,44 +1,40 @@
 package com.fluxboard.notification.job;
 
-import com.fluxboard.deadline.entity.TaskDeadlineEntity;
-import com.fluxboard.deadline.repository.TaskDeadlineRepository;
+import com.fluxboard.board.task.entity.TaskEntity;
+import com.fluxboard.board.task.repository.TaskRepository;
 import com.fluxboard.notification.service.NotificationDispatcher;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Component
-@RequiredArgsConstructor
 public class TaskDeadlineJob {
 
-    private final TaskDeadlineRepository deadlineRepository;
+    private final TaskRepository taskRepository;
     private final NotificationDispatcher notificationDispatcher;
 
-    @Value("${app.deadline.reminder-offset:1440}")
-    private Integer reminderOffset;
+    public TaskDeadlineJob(TaskRepository taskRepository, NotificationDispatcher notificationDispatcher) {
+        this.taskRepository = taskRepository;
+        this.notificationDispatcher = notificationDispatcher;
+    }
 
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 0 * * * *") 
     public void scanAndNotifyApproachingDeadlines() {
         Instant now = Instant.now();
+        Instant in23Hours = now.plus(23, ChronoUnit.HOURS);
+        Instant in24Hours = now.plus(24, ChronoUnit.HOURS);
 
-        List<TaskDeadlineEntity> overdueRecords = deadlineRepository.findOverdueTasks(now);
-        for (TaskDeadlineEntity record : overdueRecords) {
-            record.setStatus(TaskDeadlineEntity.DeadlineStatus.OVERDUE);
-            notificationDispatcher.notifyTaskDeadline(record.getTaskId()); 
-        }
-        if (!overdueRecords.isEmpty()) {
-            deadlineRepository.saveAll(overdueRecords);
-        }
+        List<TaskEntity> urgentTasks = taskRepository.findTasksApproachingDeadline(in23Hours, in24Hours);
 
-        Instant reminderTarget = now.plus(Duration.ofMinutes(reminderOffset));
-        List<TaskDeadlineEntity> upcomingTasks = deadlineRepository.findTasksForReminder(reminderTarget, now);
-        for (TaskDeadlineEntity record : upcomingTasks) {
-            notificationDispatcher.notifyTaskDeadline(record.getTaskId());
+        for (TaskEntity task : urgentTasks) {
+            if (task.getAssigneesUserId() != null) {
+                for (String assigneeId : task.getAssigneesUserId()) {
+                    notificationDispatcher.notifyTaskDeadline(assigneeId, task);
+                }
+            }
         }
     }
 }
