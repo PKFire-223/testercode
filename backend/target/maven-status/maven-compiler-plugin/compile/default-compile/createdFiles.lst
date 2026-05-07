@@ -1,5 +1,5 @@
+com\fluxboard\common\startup\DatabaseStartupCheck.class
 com\fluxboard\FluxboardApplication.class
 com\fluxboard\common\config\MongoConfig.class
 com\fluxboard\common\config\CorsConfig.class
-com\fluxboard\common\startup\DatabaseStartupCheck.class
 com\fluxboard\common\controller\HealthCheckController.class
