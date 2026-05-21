@@ -1,179 +1,211 @@
-import React, { useMemo } from 'react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
-import { MoreVertical, UserCog, Trash2 } from 'lucide-react';
+import React, { memo } from "react";
+import type { ReactNode } from "react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+  Cell
+} from "recharts";
+import { MoreVertical, Users, Building2, Network, ShieldAlert, CheckCircle2, Clock, AlertTriangle } from "lucide-react";
+import type { AdminDashboardData } from "../api/dashboardApi";
 
 // ==========================================
-// StatCard – gọn, linh hoạt
+// STAT CARD COMPONENT (COMPACT PREMIUM)
 // ==========================================
-const StatCard = ({ title, value, children, className = "" }) => (
-  <div className={`bg-white p-5 rounded-2xl shadow-sm hover:shadow-md border border-slate-200/80 transition-all duration-300 flex flex-col ${className}`}>
-    <div className="flex justify-between items-start mb-2">
-      <h3 className="font-bold text-[15px] text-slate-700">{title}</h3>
-      <button className="text-slate-400 hover:text-indigo-600 hover:bg-slate-100 p-1 rounded-md transition-colors">
-        <MoreVertical size={18} />
-      </button>
+interface StatCardProps {
+  title: string;
+  value?: string | number;
+  icon?: ReactNode;
+  subtitle?: string;
+  className?: string;
+}
+
+const StatCard = ({ title, value, icon, subtitle, className = "" }: StatCardProps) => (
+  // 🚀 Thu gọn padding (p-5 lg:p-6), bo góc (rounded-3xl)
+  <div className={`bg-gradient-to-b from-white to-slate-50/50 p-5 lg:p-6 rounded-3xl shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-slate-100 transition-all duration-300 hover:shadow-[0_8px_25px_rgb(0,0,0,0.06)] flex flex-col ${className}`}>
+    <div className="flex justify-between items-start mb-3">
+      <div className="flex items-center gap-2.5">
+        {icon && <div className="p-2 bg-white shadow-sm text-slate-600 rounded-xl border border-slate-100">{icon}</div>}
+        <h3 className="font-extrabold text-[12px] uppercase tracking-widest text-slate-500">{title}</h3>
+      </div>
+      <button className="text-slate-300 hover:text-indigo-600 p-1.5 rounded-lg hover:bg-indigo-50 transition-colors"><MoreVertical size={18} /></button>
     </div>
-    {value !== undefined && <div className="text-[40px] leading-none font-bold tracking-tight text-slate-800">{value}</div>}
-    {children && <div className="mt-2">{children}</div>}
+    
+    <div className="mt-auto pt-3">
+      {/* 🚀 Giảm size số KPI về 36px */}
+      {value !== undefined && <div className="text-[36px] leading-none font-black tracking-tighter text-slate-800">{value}</div>}
+      {subtitle && <div className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-2">{subtitle}</div>}
+    </div>
   </div>
 );
 
 // ==========================================
-// AdminDashboard – tối ưu trực quan
+// MAIN DASHBOARD COMPONENT
 // ==========================================
-const AdminDashboard = ({ data }) => {
+interface AdminDashboardProps {
+  data: AdminDashboardData | null;
+}
+
+const AdminDashboard = ({ data }: AdminDashboardProps) => {
   if (!data) return null;
 
-  const cards = data?.cards ?? {};
-  const projectStatusDistribution = data?.project_status_distribution ?? [];
-  const atRiskProjects = data?.at_risk_projects ?? [];
-  const auditLogs = data?.audit_logs ?? [];
-  const membersByDepartment = data?.members_by_department ?? []; // [{ department, count }]
-
-  const chartData = useMemo(() => {
-    return projectStatusDistribution.map((item) => ({
-      name: item.status,
-      value: item.count,
-      color: item.color
-    }));
-  }, [projectStatusDistribution]);
-
-  const projectStatusList = useMemo(() => {
-    return atRiskProjects.map((project) => ({
-      name: project.name,
-      value: project.status,
-      isBadge: project.status === 'At Risk' || project.status === 'Delayed'
-    }));
-  }, [atRiskProjects]);
+  const kpi = data.organization_kpi || { total_users: 0, total_departments: 0, total_teams: 0 };
+  const health = data.company_deadline_health || { on_track: 0, at_risk: 0, overdue: 0, total_extensions: 0 };
+  
+  const chartData = (data.department_points_distribution || []).map(dept => {
+    const deptName = dept.department_id === "Unassigned" ? "Chưa gán" : `Phòng ${dept.department_id.substring(0,4).toUpperCase()}`;
+    return {
+      name: deptName,
+      total: dept.total_points,
+      completed: dept.completed_points,
+      remaining: dept.total_points - dept.completed_points,
+    };
+  });
 
   return (
-    <div className="space-y-5 font-sans text-slate-800 animate-in fade-in zoom-in-95 duration-500 pb-10">
+    // 🚀 Thu gọn khoảng cách các khối (space-y-5, gap-5)
+    <div className="space-y-5 lg:space-y-6 font-sans text-slate-800 animate-in fade-in zoom-in-95 duration-500 pb-8">
       
-      {/* ================= ROW 1: 4 CARD CHÍNH ================= */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        {/* Total Users */}
-        <StatCard title="Total Users" value={cards.total_users?.toLocaleString()} />
-        
-        {/* Active Projects */}
-        <StatCard title="Active Projects">
-          <div className="flex items-end gap-6 pb-1">
-            <div className="flex flex-col">
-              <span className="text-[36px] leading-none font-bold text-slate-800">{cards.projects?.active}</span>
-              <span className="text-sm font-semibold text-slate-500 mt-1">Active</span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[22px] leading-none font-bold text-slate-800">{cards.projects?.archived}</span>
-              <span className="text-sm font-semibold text-slate-500 mt-1">Archived</span>
-            </div>
-          </div>
-        </StatCard>
-
-        {/* Departments – hiển thị tổng + danh sách phòng ban */}
-        <StatCard title="Departments" value={cards.total_departments}>
-          <div className="mt-3 space-y-2 max-h-[100px] overflow-y-auto pr-1">
-            {membersByDepartment.length === 0 ? (
-              <p className="text-sm text-slate-400 italic">No department data</p>
-            ) : (
-              membersByDepartment.map((dept, idx) => (
-                <div key={idx} className="flex justify-between items-center text-sm border-b border-slate-100 pb-1 last:border-0">
-                  <span className="font-medium text-slate-700 truncate">{dept.department}</span>
-                  <span className="font-bold text-indigo-600 ml-2">{dept.count}</span>
-                </div>
-              ))
-            )}
-          </div>
-        </StatCard>
-
-        {/* Audit Log */}
-        <StatCard title="Audit Log">
-          <div className="space-y-3 mt-1 max-h-[100px] overflow-y-auto">
-            {auditLogs.length === 0 ? (
-              <p className="text-sm text-slate-400 italic">No activities recorded.</p>
-            ) : (
-              auditLogs.slice(0, 2).map((log, idx) => (
-                <div key={log.id || idx} className="flex items-start gap-2.5 group cursor-pointer">
-                  {log.actor === 'System' ? <UserCog size={16} className="text-slate-400 group-hover:text-indigo-500 shrink-0 mt-0.5" /> : <Trash2 size={16} className="text-slate-400 group-hover:text-rose-500 shrink-0 mt-0.5" />}
-                  <p className="text-[13px] leading-snug font-medium text-slate-600 group-hover:text-slate-800 line-clamp-2">{log.action}</p>
-                </div>
-              ))
-            )}
-          </div>
-        </StatCard>
+      {/* ================================== */}
+      {/* ROW 1: TỔNG QUAN TỔ CHỨC (KPIs) */}
+      {/* ================================== */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 lg:gap-6">
+        <StatCard 
+          title="Tổng Nhân Sự" 
+          value={kpi.total_users.toLocaleString()} 
+          icon={<Users size={18} />} 
+          subtitle="Tài khoản hoạt động"
+          className="border-b-[5px] border-b-indigo-500"
+        />
+        <StatCard 
+          title="Phòng Ban" 
+          value={kpi.total_departments.toLocaleString()} 
+          icon={<Building2 size={18} />} 
+          subtitle="Đang vận hành"
+          className="border-b-[5px] border-b-emerald-500"
+        />
+        <StatCard 
+          title="Đội Nhóm (Teams)" 
+          value={kpi.total_teams.toLocaleString()} 
+          icon={<Network size={18} />} 
+          subtitle="Các dự án nhỏ"
+          className="border-b-[5px] border-b-amber-500"
+        />
       </div>
 
-      {/* ================= ROW 2: CHI TIẾT & BIỂU ĐỒ ================= */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-5">
+      {/* ================================== */}
+      {/* ROW 2: BIỂU ĐỒ & DEADLINE HEALTH */}
+      {/* ================================== */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 lg:gap-6">
         
-        {/* Cột bên trái: Members Info */}
-        <div className="flex flex-col gap-5">
-          <StatCard title="Members" value={cards.total_members?.toLocaleString()} />
-          <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex-1 flex flex-col justify-center">
-            <div className="space-y-4">
-              <div className="flex justify-between items-center text-[14px] font-medium">
-                <span className="text-slate-500">Total Users</span>
-                <span className="font-bold text-slate-800">{cards.total_users?.toLocaleString()}</span>
+        {/* BẢNG THEO DÕI SỨC KHỎE DEADLINE */}
+        <div className="bg-gradient-to-b from-white to-slate-50/40 p-6 rounded-3xl shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-slate-100 flex flex-col min-h-[400px] transition-all hover:shadow-[0_8px_25px_rgb(0,0,0,0.06)]">
+          <div className="flex justify-between items-start mb-5 shrink-0">
+            <div>
+              <h3 className="font-black text-lg text-slate-900 tracking-tight">Cảnh Báo Deadline</h3>
+              <p className="text-xs text-slate-400 font-medium mt-1">Sức khỏe toàn công ty</p>
+            </div>
+            <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 shadow-sm border border-slate-100"><ShieldAlert size={20} strokeWidth={2}/></div>
+          </div>
+
+          <div className="flex-1 flex flex-col justify-center gap-3.5 mt-1">
+            {/* ON TRACK */}
+            <div className="flex items-center justify-between p-4 rounded-2xl bg-emerald-50/70 border border-emerald-100 transition-colors hover:bg-emerald-50">
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-white text-emerald-500 flex items-center justify-center shadow-sm border border-emerald-100/50"><CheckCircle2 size={20} strokeWidth={2.5}/></div>
+                <div>
+                  <div className="font-bold text-sm text-emerald-900 leading-tight">Đúng Tiến Độ</div>
+                  <div className="text-[10px] font-black text-emerald-500/80 uppercase tracking-widest mt-1">On Track</div>
+                </div>
               </div>
-              <div className="flex justify-between items-center text-[14px] font-medium">
-                <span className="text-slate-500">Active Members</span>
-                <span className="font-bold text-emerald-600">{cards.total_members?.toLocaleString()}</span>
+              <span className="text-2xl font-black text-emerald-600">{health.on_track}</span>
+            </div>
+
+            {/* AT RISK */}
+            <div className="flex items-center justify-between p-4 rounded-2xl bg-amber-50/70 border border-amber-100 transition-colors hover:bg-amber-50">
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-white text-amber-500 flex items-center justify-center shadow-sm border border-amber-100/50"><AlertTriangle size={20} strokeWidth={2.5}/></div>
+                <div>
+                  <div className="font-bold text-sm text-amber-900 leading-tight">Nguy Cơ Trễ</div>
+                  <div className="text-[10px] font-black text-amber-500/80 uppercase tracking-widest mt-1">At Risk</div>
+                </div>
               </div>
-              <div className="flex justify-between items-center text-[14px] font-medium">
-                <span className="text-slate-500">Archived Projects</span>
-                <span className="font-bold text-slate-800">{cards.projects?.archived}</span>
+              <span className="text-2xl font-black text-amber-600">{health.at_risk}</span>
+            </div>
+
+            {/* OVERDUE */}
+            <div className="flex items-center justify-between p-4 rounded-2xl bg-rose-50/70 border border-rose-100 transition-colors hover:bg-rose-50">
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-white text-rose-500 flex items-center justify-center shadow-sm border border-rose-100/50"><Clock size={20} strokeWidth={2.5}/></div>
+                <div>
+                  <div className="font-bold text-sm text-rose-900 leading-tight">Đã Cháy Hạn</div>
+                  <div className="text-[10px] font-black text-rose-500/80 uppercase tracking-widest mt-1">Overdue</div>
+                </div>
               </div>
+              <span className="text-2xl font-black text-rose-600">{health.overdue}</span>
+            </div>
+            
+            {/* THÔNG TIN PHỤ */}
+            <div className="mt-2 text-center">
+              <span className="inline-block text-[11px] font-bold text-slate-500 bg-white px-3.5 py-2 rounded-xl border border-slate-200 shadow-sm">
+                Tổng lượt xin gia hạn (Extensions): <strong className="text-indigo-600 text-[13px] ml-1">{health.total_extensions}</strong>
+              </span>
             </div>
           </div>
         </div>
 
-        {/* Project Status List */}
-        <div className="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col min-h-[320px]">
-          <div className="flex justify-between items-start mb-4 shrink-0">
-            <h3 className="font-bold text-[16px] text-slate-800">Project Status</h3>
-            <button className="text-slate-400 hover:text-indigo-600 p-1"><MoreVertical size={18} /></button>
+        {/* BIỂU ĐỒ STORY POINTS THEO PHÒNG BAN */}
+        <div className="lg:col-span-2 bg-gradient-to-b from-white to-indigo-50/10 p-6 rounded-3xl shadow-[0_4px_20px_rgb(0,0,0,0.03)] border border-slate-100 flex flex-col min-h-[400px] transition-all hover:shadow-[0_8px_25px_rgb(0,0,0,0.06)]">
+          <div className="flex justify-between items-start mb-6 shrink-0">
+            <div>
+              <h3 className="font-black text-lg text-slate-900 tracking-tight">Phân Bổ Điểm Số (Story Points)</h3>
+              <p className="text-xs text-slate-400 font-medium mt-1">So sánh điểm hoàn thành và điểm được giao theo phòng ban</p>
+            </div>
           </div>
-          <div className="flex-1 overflow-y-auto pr-1 -mr-1">
-            {projectStatusList.length === 0 ? (
-              <p className="text-sm text-slate-400 italic text-center mt-10">No active risk projects</p>
-            ) : (
-              <div className="space-y-1">
-                {projectStatusList.map((item, idx) => (
-                  <div key={idx} className="group flex justify-between items-center py-2.5 border-b border-slate-100 last:border-0 hover:bg-slate-50 px-2 -mx-2 rounded-lg transition-colors">
-                    <span className="text-[14px] font-semibold text-slate-700 group-hover:text-indigo-600 truncate pr-2">{item.name}</span>
-                    {item.isBadge ? (
-                      <span className={`px-2.5 py-1 rounded-md text-[11px] font-bold uppercase shadow-sm shrink-0 ${item.value === 'At Risk' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'}`}>
-                        {item.value}
-                      </span>
-                    ) : (
-                      <span className="text-[15px] font-bold text-slate-800 shrink-0">{item.value}</span>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
 
-        {/* Project Status Distribution Chart */}
-        <div className="lg:col-span-2 bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col min-h-[320px]">
-          <div className="flex justify-between items-start mb-4 shrink-0">
-            <h3 className="font-bold text-[16px] text-slate-800">Project Status Distribution</h3>
-            <button className="text-slate-400 hover:text-indigo-600 p-1"><MoreVertical size={18} /></button>
-          </div>
-          <div className="flex-1 w-full relative">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12, fontWeight: 600}} dy={10} />
-                <YAxis axisLine={false} tickLine={false} tick={{fill: '#64748b', fontSize: 12, fontWeight: 600}} />
-                <Tooltip cursor={{fill: '#f8fafc'}} contentStyle={{borderRadius: '10px', border: '1px solid #e2e8f0'}} />
-                <Bar dataKey="value" barSize={48} radius={[6, 6, 0, 0]}>
-                  {chartData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+          {chartData.length === 0 ? (
+            <div className="flex-1 flex items-center justify-center text-sm font-bold text-slate-300 uppercase tracking-widest bg-slate-50/50 rounded-2xl border border-dashed border-slate-200">
+              Chưa có dữ liệu phòng ban
+            </div>
+          ) : (
+            <div className="flex-1 w-full min-h-[280px] -ml-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                  
+                  <XAxis 
+                    dataKey="name" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fill: "#64748b", fontSize: 11, fontWeight: 700 }} 
+                    dy={10} 
+                  />
+                  
+                  <YAxis 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fill: "#64748b", fontSize: 11, fontWeight: 700 }} 
+                  />
+                  
+                  <Tooltip 
+                    cursor={{ fill: "#f8fafc" }} 
+                    contentStyle={{ borderRadius: "12px", border: "none", boxShadow: "0 8px 20px rgba(0,0,0,0.1)", fontWeight: "bold", fontSize: "12px", padding: "8px 12px" }} 
+                  />
+                  
+                  <Legend iconType="circle" wrapperStyle={{ fontSize: "12px", fontWeight: "bold", paddingTop: "16px" }} />
+                  
+                  {/* 🚀 Thu nhỏ cột Bar về 36px, điều chỉnh bo góc nhẹ hơn */}
+                  <Bar dataKey="completed" name="Điểm hoàn thành" stackId="a" fill="#10b981" barSize={36} radius={[0, 0, 6, 6]} className="hover:opacity-90 transition-opacity" />
+                  <Bar dataKey="remaining" name="Điểm còn lại" stackId="a" fill="#cbd5e1" barSize={36} radius={[6, 6, 0, 0]} className="hover:opacity-90 transition-opacity" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
         </div>
 
       </div>
@@ -181,4 +213,4 @@ const AdminDashboard = ({ data }) => {
   );
 };
 
-export default AdminDashboard;
+export default memo(AdminDashboard);
