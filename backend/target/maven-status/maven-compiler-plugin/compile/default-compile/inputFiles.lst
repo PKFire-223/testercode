@@ -53,6 +53,7 @@ C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\board\service\BoardService.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\board\task\controller\TaskController.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\board\task\dto\request\CreateTaskRequest.java
+C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\board\task\dto\request\TaskAttachmentRequest.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\board\task\dto\request\TaskMoveRequest.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\board\task\dto\request\UpdateTaskRequest.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\board\task\dto\response\TaskResponse.java
