@@ -54,6 +54,7 @@ C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\board\task\controller\TaskController.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\board\task\dto\request\CreateTaskRequest.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\board\task\dto\request\TaskAttachmentRequest.java
+C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\board\task\dto\request\TaskCommentRequest.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\board\task\dto\request\TaskMoveRequest.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\board\task\dto\request\UpdateTaskRequest.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\board\task\dto\response\TaskResponse.java
@@ -70,6 +71,7 @@ C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\common\config\PasswordEncoderConfig.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\common\config\SchedulingConfig.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\common\config\WebSocketConfig.java
+C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\common\config\WebSocketPresenceChannelInterceptor.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\common\controller\HealthCheckController.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\common\dto\ApiErrorResponse.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\common\dto\ApiResponse.java
@@ -180,6 +182,7 @@ C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\rbac\service\RoleService.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\user\controller\UserController.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\user\dto\request\CreateUserRequest.java
+C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\user\dto\request\UpdateAccountRoleRequest.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\user\dto\request\UpdateNotificationPrefRequest.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\user\dto\request\UpdateUserRequest.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\user\dto\response\UnassignedUserResponse.java
@@ -190,4 +193,5 @@ C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\user\repository\UserNotificationPrefRepository.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\user\repository\UserRepository.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\user\service\UserNotificationPrefService.java
+C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\user\service\UserPresenceService.java
 C:\Users\QUANG\Code_UIT\IE307-Doan\CookingApp\doan\testercode\fluxboard-project\backend\src\main\java\com\fluxboard\user\service\UserService.java
